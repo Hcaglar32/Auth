@@ -1,17 +1,25 @@
 import React, { useReducer, createContext } from 'react';
-import * as jwtDecode from 'jwt-decode'; // jwt-decode paketini doğrudan içe aktar
+import {jwtDecode} from "jwt-decode";
 
 const initialState = {
     user: null
 };
 
-if (localStorage.getItem("token")) {
-    const decodedToken = jwtDecode(localStorage.getItem("token")); // jwtDecode fonksiyonunu doğrudan kullan
+const token = localStorage.getItem("token");
 
-    if (decodedToken.exp * 1000 < Date.now()) {
-        localStorage.removeItem("token");
-    } else {
-        initialState.user = decodedToken;
+if (token) {
+    try {
+        const decodedToken = jwtDecode(token);
+        console.log("decodedToken:", decodedToken); // Decoded token'ı kontrol etmek için konsola yazdırma
+
+        if (decodedToken.exp * 1000 < Date.now()) {
+            localStorage.removeItem("token");
+        } else {
+            initialState.user = decodedToken;
+        }
+    } catch (error) {
+        console.error("Invalid token specified:", error.message);
+        localStorage.removeItem("token"); // Geçersiz tokenı kaldır
     }
 }
 

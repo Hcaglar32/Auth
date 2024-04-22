@@ -45,10 +45,10 @@ module.exports = {
         async loginUser(_, { loginInput: { email, password } }) {
             // kullanıcı var mı yok mu
             const user = await User.findOne({ email });
-
+        
             // şifre şifrelenmiş şifreye eşit mi
             if (user && (await bcrypt.compare(password, user.password))) {
-                //yeni token oluştur
+                // yeni token oluştur
                 const token = jwt.sign(
                     { user_id: user._id, email },
                     "UNSAFE_STRING",
@@ -56,19 +56,21 @@ module.exports = {
                         expiresIn: "2h"
                     }
                 );
-            //kullanıcıya jeton ekle
+                // kullanıcıya jeton ekle
                 user.token = token;
-
-                return{
+        
+                // kullanıcı bilgilerini döndür
+                return {
                     id: user._id,
-                    ...user.doc
-                }
-               
-            } else{
-                throw new ApolloError('Şifre yanlış', 'INCORRECT_PASSWORD')
+                    username: user.username,
+                    email: user.email,
+                    token: user.token
+                };
+            } else {
+                throw new ApolloError('Şifre yanlış', 'INCORRECT_PASSWORD');
             }
-
         }
+        
 
     },
     Query: {
